@@ -45,9 +45,7 @@
 					return p;
 				},{});
 
-				let login_url = form.action.split('://')[1].split('/').splice(1).join('/');
-				login_url = `https://koleksi.uitm.edu.my/eqps/${login_url}`;
-				// console.log(login_url, toFormData(inputs));
+				let login_url = 'https://koleksi.uitm.edu.my/eqps/index.php?page=login';
 				return fetchProxy(login_url, {
 					method: form.method,
 					body: toFormData(inputs)
