@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>UiTM e-QPS Login</title>
+	<meta charset="utf-8">
+</head>
+<body>
+	<form name="Login">
+		<input type="text" name="user" placeholder="Matrix Number">
+		<input type="password" name="pass" placeholder="IC Number">
+		<input type="submit" name="submit" value="Login">
+	</form>
+	<div id="Output"></div>
+	<script type="text/javascript">
+		Response.prototype.html = function(){
+			return this.text().then(html=>{
+				const doc = document.createElement('document');
+				doc.innerHTML = html;
+				return doc;
+			});
+		}
+		function fetchProxy(url, options={}){
+			let [orig,prtc,host,path]=url.match(/(https?):\/\/([^\/]+)\/(.+)/);
+			if(!host) throw `Invalid url "${url}": No host found!`;
+			if(!options.headers) options.headers = {'Origin': host};
+			console.log(`Got option for "${url}"`, options);
+			return fetch(`https://cors-anywhere.herokuapp.com/${url}`, options);
+		}
+
+		function toFormData(data){
+			return Object.entries(data).reduce((fd, [key,val])=>{
+				fd.append(key, val);
+				console.log(`"${key}": "${val}"`)
+				return fd;
+			},new FormData());
+		}
+
+		function login_eqps(username, password){
+			return fetchProxy('https://koleksi.uitm.edu.my/eqps')
+			.then(res=>res.html())
+			.then(doc=>{
+				const form = doc.querySelector('form');
+				const inputs = [...form.querySelectorAll('input[name]')].reduce((p,c,i)=>{
+					p[c.name] = (i===0?username:(i===1?password:c.value));
+					return p;
+				},{});
+
+				let login_url = form.action.split('://')[1].split('/').splice(1).join('/');
+				login_url = `https://koleksi.uitm.edu.my/eqps/${login_url}`;
+				// console.log(login_url, toFormData(inputs));
+				return fetchProxy(login_url, {
+					method: form.method,
+					body: toFormData(inputs)
+				})
+				.then(res=>res.text());
+			})
+		}
+
+		const output = document.querySelector('div#Output');
+		Login.addEventListener('submit', e=>{
+			e.preventDefault();
+			const [user, pass, _] = [...Login.querySelectorAll('input[name]')].map(i=>i.value);
+			login_eqps(user, pass)
+			.then(html=>{
+				if(html.indexOf("Please enter the correct User ID (Student ID / Staff ID) & IC No.")>=0)
+					throw 'Please insert the correct login credentials!';
+				alert('Login success!');
+				output.innerText = html;
+			})
+			.catch(alert);
+		});
+	</script>
+</body>
+</html>
