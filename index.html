@@ -93,20 +93,27 @@
 			},new FormData());
 		}
 
+		function toURLEncoded(data){
+			return Object.entries(data).reduce((enc, [key,val])=>{
+				enc.append(key, val);
+				return enc;
+			}, new URLSearchParams());
+		}
+
 		function login_eqps(username, password){
 			return fetchProxy('https://koleksi.uitm.edu.my/eqps')
 			.then(res=>res.html())
 			.then(doc=>{
 				const form = doc.querySelector('form');
-				const inputs = [...form.querySelectorAll('input[name]')].reduce((p,c,i)=>{
-					p[c.name] = (i===0?username:(i===1?password:c.value));
-					return p;
-				},{});
+				const inputs = {
+					cuser: username, pass: password,
+					login: 'Login ?', tknfv: '598960EEX09SGOCRWHDOINJFWINT80E4'
+				}
 
 				let login_url = 'https://koleksi.uitm.edu.my/eqps/index.php?page=login';
 				return fetchProxy(login_url, {
 					method: form.method,
-					body: toFormData(inputs)
+					body: toURLEncoded(inputs)
 				})
 				.then(res=>res.text());
 			})
