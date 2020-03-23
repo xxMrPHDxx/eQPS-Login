@@ -106,9 +106,10 @@
 			.then(res=>res.html())
 			.then(doc=>{
 				const form = doc.querySelector('form');
+				const token = form.querySelector('input[type=hidden]');
 				const inputs = {
 					cuser: username, pass: password,
-					login: 'Login ?', tknfv: '598960EEX09SGOCRWHDOINJFWINT80E4'
+					login: 'Login ?', tknfv: token
 				}
 
 				let login_url = 'https://koleksi.uitm.edu.my/eqps/index.php?page=login';
