@@ -106,7 +106,9 @@
 			.then(res=>res.html())
 			.then(doc=>{
 				const form = doc.querySelector('form');
-				const token = form.querySelector('input[type=hidden]');
+				const script = [...doc.querySelectorAll('script')].filter(s=>s.innerHTML.match(/var\ csrftoken="[^"]+"/))[0].innerText;
+				const token = script.match(/var\ csrftoken="([^"]+)"/)[1];
+				if(!token) throw 'No token found!';
 				const inputs = {
 					cuser: username, pass: password,
 					login: 'Login ?', tknfv: token
@@ -136,11 +138,13 @@
 			const [user, pass, _] = [...Login.querySelectorAll('input[name]')].map(i=>i.value);
 			login_eqps(user, pass)
 			.then(html=>{
-				loading.style.display = 'none';
-				Login.style.display = 'grid';
 				throw html.indexOf("Back to Login Page")>=0?'Login Failed!':'Login success!';
 			})
-			.catch(alert);
+			.catch(alert)
+			.finally(()=>{
+				loading.style.display = 'none';
+				Login.style.display = 'grid';
+			});
 		});
 	</script>
 </body>
