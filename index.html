@@ -114,7 +114,7 @@
 					login: 'Login ?', tknfv: token
 				}
 
-				let login_url = 'https://koleksi.uitm.edu.my/eqps/index.php?page=login';
+				let login_url = `https://koleksi.uitm.edu.my/eqps/${form.action}`;
 				return fetchProxy(login_url, {
 					method: form.method,
 					body: toURLEncoded(inputs)
