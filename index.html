@@ -117,7 +117,7 @@
 					method: 'POST',
 					body: toURLEncoded(inputs)
 				})
-				.then(res=>res.text());
+				.then(res=>res.html());
 			})
 		}
 
@@ -135,8 +135,9 @@
 			Login.style.display = 'none';
 			const [user, pass, _] = [...Login.querySelectorAll('input[name]')].map(i=>i.value);
 			login_eqps(user, pass)
-			.then(html=>{
-				throw html.indexOf("Back to Login Page")>=0?'Login Failed!':'Login success!';
+			.then(doc=>{
+				const data = doc.querySelector('td.data');
+				throw data?data.innerText:doc.innerText;
 			})
 			.catch(alert)
 			.finally(()=>{
